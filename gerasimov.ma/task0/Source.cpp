@@ -3,13 +3,13 @@ using namespace std;
 
 int NOD_pos(int a, int b)
 {
-	do
+	while ((a != 0) && (b != 0))
 	{
 		if (a > b)
 			a = a % b;
 		else
 			b = b % a;
-	} while ((a != 0) && (b != 0));
+	}
 	if (a == 0)
 		return b;
 	else
