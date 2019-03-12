@@ -27,45 +27,43 @@ public:
 
 	Polynom(const Polynom& pol)
 	{
-		if (power != pol.power)
-		{
-			power = pol.power;
-			coeff = new double[power + 1];
-		}
+		power = pol.power;
+		coeff = new double[power + 1];
 		for (int i = 0; i <= power; i++)
 			coeff[i] = pol.coeff[i];
 	}
 
-	~Polynom() {}
+	~Polynom()
+	{
+		delete[] coeff;
+	}
 
 	void Adapt(int pre_power)
 	{
 		double * tmp = new double[pre_power + 1];
 		for (int i = 0; i <= pre_power; i++)
 			tmp[i] = coeff[i];
-		delete coeff;
+		delete[] coeff;
 		coeff = new double[power + 1];
 		for (int i = 0; i <= power; i++)
 			if (pre_power - i < 0)
 				coeff[power - i] = 0;
 			else
 				coeff[power - i] = tmp[pre_power - i];
-		delete tmp;
+		delete[] tmp;
 	}
 
-	void SetPower()
+	void SetPower(int p)
 	{
 		int tmp = power;
-		cout << "Enter the power of the polynomial: ";
-		cin >> power;
+		power = p;
 		Adapt(tmp);
 	}
 
-	void SetCoeff()
+	void SetCoeff(double * c)
 	{
-		cout << "Enter the " << power + 1 << " coefficients of the polynomial: ";
 		for (int i = 0; i <= power; i++)
-			cin >> coeff[i];
+			coeff[i] = c[i];
 	}
 
 	void Show()
@@ -128,7 +126,7 @@ public:
 	{
 		if (power != pol.power)
 		{
-			delete coeff;
+			delete[] coeff;
 			power = pol.power;
 			coeff = new double[power + 1];
 		}
@@ -141,13 +139,21 @@ public:
 int main()
 {
 	Polynom pol, der;
-	int number;
+	int number, power;
 	double x;
 
-	pol.SetPower();
+
+	cout << "Enter the power of the polynomial: ";
+	cin >> power;
+	pol.SetPower(power);
 	pol.Show();
 	cout << endl;
-	pol.SetCoeff();
+	double *mas = new double[power];
+	cout << "Enter the " << power + 1 << " coefficients of the polynomial: ";
+	for (int i = 0; i <= power; i++)
+		cin >> mas[i];
+	cout << endl;
+	pol.SetCoeff(mas);
 	pol.Show();
 	cout << endl;
 	cout << "The power of the polynomial is " << pol.GetPower() << endl << endl;
@@ -160,6 +166,6 @@ int main()
 	der = pol.GetDerivative();
 	cout << "The first derivative of the polynomial is: ";
 	der.Show();
-	cout << endl;
+	cout << endl << "Press any key to exit" << endl;
 	_getch();
 }
