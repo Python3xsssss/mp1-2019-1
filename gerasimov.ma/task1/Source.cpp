@@ -2,170 +2,170 @@
 #include <conio.h>
 using namespace std;
 
-class Polynom
+class IntegralCount
 {
 private:
-	int power;
-	double * coeff;
-
+	double(*func)(double arg);
+	double downlim, uplim;
+	unsigned int quantity;
+	char mode;
+	long double result;
 public:
-	Polynom()
+	IntegralCount()
 	{
-		power = 0;
-		coeff = new double[power + 1];
-		for (int i = 0; i <= power; i++)
-			coeff[i] = 0;
+		uplim = downlim = 0;
+		quantity = 0;
+		mode = 'm';
+		result = 0;
 	}
 
-	Polynom(int p, double * c)
+	IntegralCount(double(*f)(double a), double down, double up, unsigned int num, char m)
 	{
-		power = p;
-		coeff = new double[power + 1];
-		for (int i = 0; i <= power; i++)
-			coeff[i] = c[i];
+		func = f;
+		downlim = down;
+		uplim = up;
+		quantity = num;
+		mode = m;
+		result = 0;
 	}
 
-	Polynom(const Polynom& pol)
+	IntegralCount(const IntegralCount& count)
 	{
-		power = pol.power;
-		coeff = new double[power + 1];
-		for (int i = 0; i <= power; i++)
-			coeff[i] = pol.coeff[i];
+		func = count.func;
+		downlim = count.downlim;
+		uplim = count.uplim;
+		quantity = count.quantity;
+		mode = count.mode;
+		result = 0;
 	}
 
-	~Polynom()
+	~IntegralCount() {}
+
+	void SetFunc(double(*f) (double a))
 	{
-		delete[] coeff;
+		func = f;
 	}
 
-	void Adapt(int pre_power)
+	void SetLimits(double down, double up)
 	{
-		double * tmp = new double[pre_power + 1];
-		for (int i = 0; i <= pre_power; i++)
-			tmp[i] = coeff[i];
-		delete[] coeff;
-		coeff = new double[power + 1];
-		for (int i = 0; i <= power; i++)
-			if (pre_power - i < 0)
-				coeff[power - i] = 0;
-			else
-				coeff[power - i] = tmp[pre_power - i];
-		delete[] tmp;
+		uplim = up;
+		downlim = down;
 	}
 
-	void SetPower(int p)
+	void GetLimits(double &down, double &up)
 	{
-		int tmp = power;
-		power = p;
-		Adapt(tmp);
+		up = uplim;
+		down = downlim;
 	}
 
-	void SetCoeff(double * c)
+	void SetNumber(unsigned int num)
 	{
-		for (int i = 0; i <= power; i++)
-			coeff[i] = c[i];
+		quantity = num;
 	}
 
-	void Show()
+	void SetMode(char m)
 	{
-		bool flag = true;
-		for (int i = 0; i <= power; i++)
+		if ((m == 'r') || (m == 'm') || (m == 'l'))
+			mode = m;
+		else
 		{
-			if (coeff[i] != 0)
-			{
-				if (coeff[i] < 0)
-					cout << " - ";
-				else if (!flag)
-					cout << " + ";
-				double tmp = abs(coeff[i]);
-				if (tmp != 1)
-					cout << tmp;
-				if (i < power)
-					cout << "x";
-				if (i < power - 1)
-					cout << "^" << power - i;
-				flag = false;
-			}
+			mode = 'm';
+			throw("Integration method not found! The middle rectangles method will be used instead.");
 		}
-		if (flag)
-			cout << "0";
 	}
 
-	int GetPower()
+	void ShowResult()
 	{
-		return power;
+		cout << endl << "Result = " << result << endl;
 	}
 
-	double GetCoeff(int number)
+	long double Count()
 	{
-		return coeff[number];
-	}
+		double step = (uplim - downlim) / quantity;
+		bool flag = true;
+		result = 0;
 
-	double GetValue(double x)
-	{
-		double result = coeff[power];
-		int tmp = x;
-		for (int i = power - 1; i >= 0; i--)
+		for (unsigned int i = 0; (i < quantity) && (flag); i++)
 		{
-			result = result + coeff[i] * tmp;
-			tmp *= x;
+			double a, b;
+			switch (mode)
+			{
+			case 'l':
+				a = downlim + step * i;
+				b = a + step;
+				result += func(a) * (b - a);
+				break;
+			case 'm':
+				a = downlim + step * i;
+				b = a + step;
+				result += func((a + b) / 2) * (b - a);
+				break;
+			case 'r':
+				a = downlim + step * i;
+				b = a - step;
+				result += func(a) * (a - b);
+				break;
+			}
 		}
 		return result;
 	}
-
-	Polynom GetDerivative()
-	{
-		double *tmp = new double[power];
-		for (int i = 0; i < power; i++)
-			tmp[i] = coeff[i] * (power - i);
-		Polynom pol = Polynom(power - 1, tmp);
-		return pol;
-	}
-
-	Polynom& operator= (const Polynom& pol)
-	{
-		if (power != pol.power)
-		{
-			delete[] coeff;
-			power = pol.power;
-			coeff = new double[power + 1];
-		}
-		for (int i = 0; i <= power; i++)
-			coeff[i] = pol.coeff[i];
-		return *this;
-	}
 };
 
-int main()
+void main()
 {
-	Polynom pol, der;
-	int number, power;
-	double x;
+	IntegralCount test;
 
+	unsigned short int another;
+	do
+	{
+		cout << "1 - abs(x)" << endl;
+		cout << "2 - sqrt(x)" << endl;
+		cout << "3 - exp(x)" << endl;
+		cout << "4 - sin(x)" << endl;
+		cout << "5 - cos(x)" << endl;
+		cout << "6 - log(x)" << endl;
+		cout << "7 - log10(x)" << endl;
+		cout << "8 - asin(x)" << endl;
+		cout << "Choose the function from the list above: ";
+		unsigned short int num;
+		cin >> num;
+		num -= 1;
+		double(*func[8])(double arg) = { abs, sqrt, exp, sin, cos, log, log10, asin };
+		test.SetFunc(func[num]);
 
-	cout << "Enter the power of the polynomial: ";
-	cin >> power;
-	pol.SetPower(power);
-	pol.Show();
-	cout << endl;
-	double *mas = new double[power];
-	cout << "Enter the " << power + 1 << " coefficients of the polynomial: ";
-	for (int i = 0; i <= power; i++)
-		cin >> mas[i];
-	cout << endl;
-	pol.SetCoeff(mas);
-	pol.Show();
-	cout << endl;
-	cout << "The power of the polynomial is " << pol.GetPower() << endl << endl;
-	cout << "Enter the number of the coefficient which value you want to know: ";
-	cin >> number;
-	cout << "The value of the coefficient " << number << " is " << pol.GetCoeff(number) << endl << endl;
-	cout << "Enter the value of x: ";
-	cin >> x;
-	cout << "The value of the polynomial with x = " << x << " is " << pol.GetValue(x) << endl << endl;
-	der = pol.GetDerivative();
-	cout << "The first derivative of the polynomial is: ";
-	der.Show();
-	cout << endl << "Press any key to exit" << endl;
+		cout << endl << "Set the limits of the integration: ";
+		double down, up;
+		cin >> down >> up;
+		test.SetLimits(down, up);
+
+		cout << endl << "Set the number of cuts: ";
+		unsigned int cuts;
+		cin >> cuts;
+		test.SetNumber(cuts);
+
+		cout << endl << "Set the mode (l - left rectangles; m - middle rectangles; r - right rectangles): ";
+		char mode;
+		cin >> mode;
+
+		try
+		{
+			test.SetMode(mode);
+		}
+		catch (char * str)
+		{
+			cout << str << endl;
+		}
+
+		double result = test.Count();
+		test.ShowResult();
+
+		double downtest, uptest;
+		test.GetLimits(downtest, uptest);
+		cout << "The limits were: " << downtest << " " << uptest << endl;
+
+		cout << endl << "Want to calculate another integral? (1 - Yes; 0 - No)" << endl;
+		cin >> another;
+	} while (another != 0);
+	cout << "Have a nice day!" << endl;
 	_getch();
 }
