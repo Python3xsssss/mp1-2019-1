@@ -65,7 +65,13 @@ public:
 
 	void SetMode(char m)
 	{
-		mode = m;
+		if ((m == 'r') || (m == 'm') || (m == 'l'))
+			mode = m;
+		else
+		{
+			cout << "Integration method not found. The middle rectangle method will be used instead." << endl;
+			mode = 'm';
+		}
 	}
 
 	void ShowResult()
@@ -98,10 +104,6 @@ public:
 				a = downlim + step * i;
 				b = a - step;
 				result += func(a) * (a - b);
-				break;
-			default:
-				flag = false;
-				cout << "This integration method does not exist" << endl;
 				break;
 			}
 		}
