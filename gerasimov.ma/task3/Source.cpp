@@ -374,7 +374,11 @@ public:
 
 		ifstream fin(filename);
 		if (!fin.is_open())
-			throw filename;
+		{
+			char error[256];
+			strcpy_s(error, filename);
+			throw error;
+		}
 		int numMethod = 0;
 		char buf[256];
 		ContactInfo tmp;
